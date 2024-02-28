@@ -1,0 +1,64 @@
+### ENV ###
+[env.development]
+BUILD_TYPE = "debug"
+
+[env.release]
+BUILD_TYPE = "release"
+
+[env]
+CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
+CARGO_MAKE_RUN_TARGET                = "raytracer"
+PROJECT_ASSET_FOLDER_LOCATION        = "./assets"
+ASSET_FOLDER_DESTINATION             = "./target/${BUILD_TYPE}/assets"
+
+[config]
+skip_core_tasks = true
+
+[tasks.default]
+workspace = false
+alias     = "build"
+
+### BUILD ###
+
+[tasks.build]
+workspace    = false
+dependencies = ["build-debug", "build-release"]
+
+[tasks.build-debug]
+workspace          = false
+command            = "cargo"
+args               = ["build"]
+dependencies       = ["copy-resources"]
+condition.profiles = ["development"]
+
+[tasks.build-release]
+workspace          = false
+command            = "cargo"
+args               = ["build", "--release"]
+dependencies       = ["copy-resources"]
+condition.profiles = ["release"]
+
+### OTHER ###
+
+[tasks.copy-resources]
+workspace = false
+condition = { files_modified = { input = ["${CARGO_MAKE_WORKING_DIRECTORY}/Cargo.toml", "${CARGO_MAKE_WORKING_DIRECTORY}/Makefile.toml", "${PROJECT_ASSET_FOLDER_LOCATION}/**/*"], output = ["${ASSET_FOLDER_DESTINATION}/**/*"] } }
+script_runner = "@shell"
+windows.script = '''
+  xcopy "${PROJECT_ASSET_FOLDER_LOCATION}" "${ASSET_FOLDER_DESTINATION}/" /e /y /i
+'''
+script = '''
+  cp -rfu ${PROJECT_ASSET_FOLDER_LOCATION} ${ASSET_FOLDER_DESTINATION}/
+'''
+dependencies = ["delete-resources"]
+
+[tasks.delete-resources]
+workspace = false
+condition = { files_exist = ["${ASSET_FOLDER_DESTINATION}/"] }
+script_runner = "@shell"
+windows.script = '''
+  rmdir "${ASSET_FOLDER_DESTINATION}" /s /q
+'''
+script = '''
+  rm -rf ${ASSET_FOLDER_DESTINATION}
+'''

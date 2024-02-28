@@ -1,0 +1,21 @@
+[package]
+name    = "raytracer"
+version = "0.1.0"
+edition = "2021"
+
+[profile.dev]
+opt-level = 1
+
+[profile.dev.package."*"]
+opt-level = 3
+
+[dependencies]
+bevy = "0.13"
+# bevy_rand = { version = "0.5", features = ["wyrand"] }
+fastrand = "2.0"
+
+bevy_egui = "0.25"
+egui      = "0.26"
+
+itertools = "0.12"
+image = "0.24"
