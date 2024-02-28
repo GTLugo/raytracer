@@ -101,7 +101,7 @@ fn render(
     while let Some(pixel_tuple) = iter.next_tuple::<(&mut u8, &mut u8, &mut u8, &mut u8)>() {
       let x = i as f32 / width as f32;
       let y = i as f32 % height as f32;
-      
+
       let color = pixel([x, y]);
 
       *pixel_tuple.0 = color[0];
